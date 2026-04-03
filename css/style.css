@@ -1,0 +1,293 @@
+body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont;
+    margin: 0;
+    padding: 0;
+    background: #f5f5f5;
+    overflow-y: auto;
+}
+
+.container {
+    max-width: 420px;
+    margin: 0 auto;
+    background: #ffffff;
+    padding: 12px;
+    /* 縦幅をスマホ画面ごとに調整 */
+    display: flex;
+    flex-direction: column;
+    min-height: 100dvh;
+    box-sizing: border-box;
+}
+
+.screen-spacer { /* 縦幅をスマホ画面ごとに調整 */
+    flex-grow: 1;
+}
+
+h1 {
+    font-size: 18px;
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+/* 年度セレクター */
+.season-selector {
+  text-align: center;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+}
+
+.season-selector:hover {
+  opacity: 0.8;
+}
+
+.caret {
+  font-size: 0.8em;
+  margin-left: 4px;
+}
+
+.season-menu {
+  list-style: none;
+  margin: 4px auto 0;
+  padding: 4px 0;
+  max-width: 160px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translate(-50%, 0);
+
+  opacity: 1;
+  pointer-events: auto;
+
+  z-index: 1000;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -8px);
+}
+
+.season-menu li {
+  padding: 6px 0;
+  text-align: center;
+  cursor: pointer;
+}
+
+.season-menu li:hover {
+  background: #f5f5f5;
+}
+
+/* タブ */
+/*
+.tabs {
+    display: flex;
+    border-bottom: 2px solid #ddd;
+    margin-bottom: 8px;
+}
+
+.tab {
+    flex: 1;
+    text-align: center;
+    padding: 8px 0;
+    font-weight: bold;
+    cursor: pointer;
+    color: #666;
+}
+
+.tab.active {
+    color: #000;
+    border-bottom: 3px solid #000;
+}
+*/
+
+/* 表 */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+table + table {
+  margin-top: 16px;
+}
+
+th, td {
+    text-align: center;
+    padding: 4px 0;
+    font-size: 12px;
+}
+
+th {
+    color: #555;
+    border-bottom: 1px solid #ddd;
+}
+
+tr:not(:last-child) td {
+    border-bottom: 1px solid #eee;
+}
+
+/* 合計点テーブル全体 */
+.total-score-table thead tr:first-child th {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.total-score-table thead tr:last-child th {
+    font-size: 18px;
+    font-weight: 700;
+}
+
+/* 「合計」というラベルだけ少し抑える */
+.total-score-table thead tr:last-child th:first-child {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 16px;
+}
+
+th.league-cell {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    font-size: 16px;
+    font-weight: 700;
+    white-space: nowrap;
+    margin: 0;
+    /* border-bottom: 1px solid #ddd; */ /* ←1列目と2列目の罫線をつなぐ場合にONにする */
+}
+
+.league-icon {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+}
+
+.row-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #666;
+}
+
+.league-score {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.score-breakdown {
+  font-size: 11px;
+  color: #999;
+  margin-left: 4px;
+}
+
+/* チームロゴ（仮） */
+.logo {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    /* border-radius: 50%; ← 画像を強制的に丸く切り抜く指定 */
+    display: block;
+    margin: 0 auto;
+}
+
+.score {
+    font-size: 12px;
+    color: #333;
+}
+
+
+/* =========================
+   ボーナス表現（追加分）
+   ========================= */
+
+/* ロゴ＋ボーナスの土台 */
+.team-bonus {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+}
+
+/* リング（共通） */
+.team-bonus::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    z-index: 1;
+    opacity: 0.9;
+}
+
+/* ボーナス数字 */
+.bonus-label {
+    position: absolute;
+    right: -6px;
+    bottom: -6px;
+    font-size: 11px;
+    font-weight: 700;
+    z-index: 3;
+    pointer-events: none;
+}
+
+/* ---------- +3（1位ピタリ） ---------- */
+.bonus-3::before {
+    border: 3px solid rgba(255, 60, 60, 0.9);
+    box-shadow: 0 0 12px rgba(255, 60, 60, 0.7);
+    animation: ringPulse 2s infinite;
+}
+
+.bonus-3 .bonus-label {
+    color: #ffebee;
+    background: rgba(255, 60, 60, 0.9);
+    border-radius: 10px;
+    padding: 1px 5px;
+    animation: bonusPulse 2s infinite reverse;
+}
+
+/* ---------- +2（2・3位ピタリ） ---------- */
+.bonus-2::before {
+    border: 2px solid #ff9f30;
+    box-shadow: 0 0 6px rgba(255, 159, 48, 0.6);
+}
+
+.bonus-2 .bonus-label {
+    color: #ff9f30;
+    background: #fff3e0;
+    border-radius: 10px;
+    padding: 1px 4px;
+}
+
+/* ---------- +1（軽い的中） ---------- */
+.bonus-1.central::before {
+    border: 1.5px solid #4caf50;
+}
+
+.bonus-1.pacific::before {
+    border: 1.5px solid #2196f3;
+}
+
+.bonus-1 .bonus-label {
+    opacity: 0.7;
+    color: #555;
+}
+
+/* ---------- アニメーション ---------- */
+@keyframes ringPulse {
+    0%   { transform: scale(1);   opacity: 0.8; }
+    50%  { transform: scale(1.12); opacity: 1; }
+    100% { transform: scale(1);   opacity: 0.8; }
+}
+
+@keyframes bonusPulse {
+    0%   { transform: scale(1.15); opacity: 1; }
+    50%  { transform: scale(0.85); opacity: 0.7; }
+    100% { transform: scale(1.15); opacity: 1; }
+}

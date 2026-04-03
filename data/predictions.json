@@ -1,0 +1,27 @@
+{
+  "2025": {
+    "central": {
+      "nakamura": ["baystars", "giants", "carp", "tigers", "swallows", "dragons"],
+      "futo":     ["swallows", "baystars", "tigers", "giants", "dragons", "carp"],
+      "b":        ["tigers", "baystars", "giants", "dragons", "carp", "swallows"]
+    },
+    "pacific": {
+      "nakamura": ["lions", "hawks", "eagles", "fighters", "marines", "buffaloes"],
+      "futo":     ["hawks", "fighters", "buffaloes", "lions", "marines", "eagles"],
+      "b":        ["hawks", "fighters", "buffaloes", "eagles", "lions", "marines"]
+    }
+  },
+
+  "2026": {
+    "central": {
+      "nakamura": ["tigers", "giants", "dragons", "baystars", "swallows", "carp"],
+      "futo":     ["swallows", "dragons", "giants", "baystars", "tigers", "carp"],
+      "b":        ["swallows", "tigers", "carp", "giants", "baystars", "dragons"]
+    },
+    "pacific": {
+      "nakamura": ["hawks", "fighters", "lions", "buffaloes", "marines", "eagles"],
+      "futo":     ["fighters", "buffaloes", "hawks", "lions", "marines", "eagles"],
+      "b":        ["hawks", "buffaloes", "marines", "fighters", "eagles", "lions"]
+    }
+  }
+}

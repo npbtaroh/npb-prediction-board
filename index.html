@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NPB予想ボード</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+
+<body>
+  <div class="container">
+    <h1 id="app-title" class="season-selector">
+      <span id="title-text">NPB順位予想</span>
+      <span id="season-text">2026</span>
+      <span class="caret">▾</span>
+
+      <ul id="season-menu" class="season-menu hidden">
+        <!-- JSで年度を生成 -->
+      </ul>
+    </h1>
+
+    <!-- 合計点 -->
+    <table class="total-score-table">
+      <thead id="total-score">
+        <!-- JSで描画 -->
+      </thead>
+    </table>
+
+    <!-- タブ -->
+    <!-- 
+    <div class="tabs">
+        <div class="tab active" onclick="showLeague('central')">
+            セ
+        </div>
+        <div class="tab" onclick="showLeague('pacific')">
+            パ
+        </div>
+    </div>
+    -->
+
+    <!-- セ・リーグ -->
+    <table>
+      <thead id="central-head">
+        <!-- JSで描画 -->
+      </thead>
+      <tbody id="central-body"></tbody>
+    </table>
+
+    <!-- パ・リーグ -->
+    <table>
+      <thead id="pacific-head">
+        <!-- JSで描画 -->
+      </thead>
+      <tbody id="pacific-body"></tbody>
+    </table>
+    <div class="screen-spacer"></div>
+  </div>
+
+  <!-- JS -->
+  <script src="js/app.js"></script>
+</body>
+</html>
