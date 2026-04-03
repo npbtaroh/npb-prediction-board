@@ -15,12 +15,12 @@ let scores = {};
 
 // 1. データロード系
 async function loadPredictions() {
-  const res = await fetch('/data/predictions.json');
+  const res = await fetch('data/predictions.json');
   return await res.json();
 }
 
 async function loadResults() {
-  const res = await fetch('/data/results.json');
+  const res = await fetch('data/results.json');
   return await res.json();
 }
 
