@@ -1,7 +1,10 @@
 name: Update NPB Results
 
 on:
-  workflow_dispatch:  # 手動実行
+  workflow_dispatch:
+
+permissions:
+  contents: write 
 
 jobs:
   update-results:
