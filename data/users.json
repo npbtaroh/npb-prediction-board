@@ -1,0 +1,20 @@
+[
+  {
+    "id": "nakamura",
+    "name": "仲村",
+    "active": true,
+    "order": 1
+  },
+  {
+    "id": "futo",
+    "name": "ふとさん",
+    "active": true,
+    "order": 2
+  },
+  {
+    "id": "b",
+    "name": "Bさん",
+    "active": true,
+    "order": 3
+  }
+]

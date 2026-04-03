@@ -49,11 +49,12 @@ h1 {
 
 .season-menu {
   list-style: none;
-  margin: 4px auto 0;
-  padding: 4px 0;
-  max-width: 160px;
+  margin: 6px auto 0;
+  padding: 6px 16px;
+  min-width: 140px;
+  max-width: 200px;
   background: #fff;
-  border-radius: 8px;
+  border-radius: 10px;
   box-shadow: 0 6px 18px rgba(0,0,0,0.18);
 
   position: absolute;
@@ -75,7 +76,7 @@ h1 {
 }
 
 .season-menu li {
-  padding: 6px 0;
+  padding: 6px 8px;
   text-align: center;
   cursor: pointer;
 }

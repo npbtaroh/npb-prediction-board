@@ -1,0 +1,40 @@
+name: Update NPB Results
+
+on:
+  workflow_dispatch:  # 手動実行
+
+jobs:
+  update-results:
+    runs-on: ubuntu-latest
+
+    steps:
+      # ① リポジトリをチェックアウト
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ② Node.js セットアップ
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # ③ 依存関係インストール
+      - name: Install dependencies
+        run: npm install cheerio
+
+      # ④ updateResults.js 実行
+      - name: Run updateResults script
+        run: node tools/updateResults.js
+
+      # ⑤ Git 設定
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      # ⑥ 変更があれば commit & push
+      - name: Commit and push if changed
+        run: |
+          git add data/results.json
+          git diff --cached --quiet || git commit -m "Update results.json (auto)"
+          git push

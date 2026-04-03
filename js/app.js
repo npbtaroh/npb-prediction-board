@@ -1,10 +1,5 @@
-const users = [
-  { id: 'nakamura', name: '仲村' },
-  { id: 'futo', name: 'ふとさん' },
-  { id: 'b', name: 'Bさん' }
-];
-
 // ★ 非同期で中身が入るので let
+let users = [];
 let season = '2026';
 let predictions = {};
 let results = {};
@@ -14,6 +9,11 @@ let availableSeasons = [];
 let scores = {};
 
 // 1. データロード系
+async function loadUsers() {
+  const res = await fetch('data/users.json');
+  return await res.json();
+}
+
 async function loadPredictions() {
   const res = await fetch('data/predictions.json');
   return await res.json();
@@ -386,6 +386,10 @@ function setupSeasonToggle() {
 async function init() {
   // タイトル更新
   updateTitleBySeason(season);
+
+  users = (await loadUsers())
+    .filter(u => u.active)
+    .sort((a, b) => a.order - b.order);
 
   // データ取得
   allPredictions = await loadPredictions();
