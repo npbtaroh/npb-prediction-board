@@ -327,6 +327,51 @@ function updateTitleBySeason(season) {
   seasonText.textContent = season;
 }
 
+function formatUpdatedAt(updatedAtStr) {
+  if (!updatedAtStr) return '--';
+
+  // "YYYY/MM/DD HH:mm" を Date に変換
+  const [datePart, timePart] = updatedAtStr.split(' ');
+  const [y, m, d] = datePart.split('/').map(Number);
+  const [hh, mm] = timePart.split(':').map(Number);
+  const updatedAt = new Date(y, m - 1, d, hh, mm);
+
+  const now = new Date();
+
+  // 今日・昨日判定用に日付だけを比較
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+
+  const updatedDate = new Date(
+    updatedAt.getFullYear(),
+    updatedAt.getMonth(),
+    updatedAt.getDate()
+  );
+
+  const time = `${hh}:${mm.toString().padStart(2, '0')}`;
+
+  if (updatedDate.getTime() === today.getTime()) {
+    return `今日 ${time}`;
+  }
+
+  if (updatedDate.getTime() === yesterday.getTime()) {
+    return `昨日 ${time}`;
+  }
+
+  return updatedAtStr;
+}
+
+function updateUpdatedAt(season) {
+  const el = document.getElementById('updated-at');
+  if (!el) return;
+
+  const updatedAt = results[season]?.updatedAt;
+  el.textContent = updatedAt
+    ? `最終更新：${formatUpdatedAt(updatedAt)}`
+    : '最終更新：--';
+}
+
 // 4. シーズンUI
 function buildSeasonMenu(allPredictions) {
   availableSeasons = Object.keys(allPredictions).sort().reverse();
@@ -347,6 +392,7 @@ async function switchSeason(newSeason) {
 
   // タイトル更新
   updateTitleBySeason(season);
+  updateUpdatedAt(season);
   document.getElementById('season-menu').classList.add('hidden');
 
   // 年度データ差し替え
@@ -386,6 +432,7 @@ function setupSeasonToggle() {
 async function init() {
   // タイトル更新
   updateTitleBySeason(season);
+  updateUpdatedAt(season);
 
   users = (await loadUsers())
     .filter(u => u.active)

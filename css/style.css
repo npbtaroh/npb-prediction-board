@@ -22,6 +22,21 @@ body {
     flex-grow: 1;
 }
 
+.header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 8px;
+  gap: 12px;
+}
+
+.updated-at {
+  font-size: 11px;
+  color: #777;
+  white-space: nowrap;
+}
+
 h1 {
     font-size: 18px;
     text-align: center;
@@ -36,6 +51,7 @@ h1 {
   cursor: pointer;
   user-select: none;
   position: relative;
+  margin-left: 14px; /* ← ほんの少し左寄せ感 */
 }
 
 .season-selector:hover {

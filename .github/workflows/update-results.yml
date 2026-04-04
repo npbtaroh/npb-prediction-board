@@ -2,6 +2,9 @@ name: Update NPB Results
 
 on:
   workflow_dispatch:
+  schedule:
+    # 毎日 JST 1:00 に実行 = UTC 16:00
+    - cron: '0 16 * * *'
 
 permissions:
   contents: write 

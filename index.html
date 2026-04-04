@@ -11,10 +11,21 @@
 
 <body>
   <div class="container">
-    <h1 id="app-title" class="season-selector">
-      <span id="title-text">NPB順位予想</span>
-      <span id="season-text">2026</span>
-      <span class="caret">▾</span>
+    <div class="header-bar">
+      <h1 id="app-title" class="season-selector">
+        <span id="title-text">NPB順位予想</span>
+        <span id="season-text">2026</span>
+        <span class="caret">▾</span>
+
+        <ul id="season-menu" class="season-menu hidden">
+          <!-- JSで年度生成 -->
+        </ul>
+      </h1>
+
+      <div id="updated-at" class="updated-at">
+        最終更新：--
+      </div>
+    </div>
 
       <ul id="season-menu" class="season-menu hidden">
         <!-- JSで年度を生成 -->
