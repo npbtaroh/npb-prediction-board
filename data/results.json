@@ -19,21 +19,21 @@
     ]
   },
   "2026": {
-    "updatedAt": "2026/4/5 2:06:29",
+    "updatedAt": "2026/4/6 2:18:55",
     "central": [
       "swallows",
       "tigers",
-      "carp",
       "giants",
+      "carp",
       "baystars",
       "dragons"
     ],
     "pacific": [
       "hawks",
-      "buffaloes",
-      "marines",
       "fighters",
+      "buffaloes",
       "eagles",
+      "marines",
       "lions"
     ]
   }
