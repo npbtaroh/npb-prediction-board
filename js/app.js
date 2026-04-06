@@ -174,10 +174,28 @@ function renderTotalScoreTable() {
   label.textContent = '合計';
   scoreRow.appendChild(label);
 
-  users.forEach(u => {
+  // 合計点を先に配列で取得
+  const totals = users.map(u =>
+    calcTotalScore(scores[season]?.[u.id])
+  );
+
+  // 最大値
+  const maxTotal = Math.max(...totals);
+
+  // 描画
+  users.forEach((u, index) => {
     const th = document.createElement('th');
-    const s = scores[season]?.[u.id];
-    th.textContent = `${calcTotalScore(s)}pt`;
+    const total = totals[index];
+
+    const main = document.createElement('span');
+    main.className = 'league-score';
+    main.textContent = `${total}pt`;
+
+    if (total === maxTotal) {
+      main.classList.add('score-strong-total');
+    }
+
+    th.appendChild(main);
     scoreRow.appendChild(th);
   });
 
@@ -227,7 +245,16 @@ function renderRankingHeader(season, league, theadId) {
   label.className = 'row-label';
   scoreRow.appendChild(label);
 
-  users.forEach(user => {
+  // ★ このリーグの合計ポイント一覧
+  const leagueTotals = users.map(user =>
+    scores[season][user.id][league].leaguePoint
+  );
+
+  // ★ 最大値
+  const maxLeaguePoint = Math.max(...leagueTotals);
+
+  // ★ 描画
+  users.forEach((user) => {
     const point = scores[season][user.id][league];
     const th = document.createElement('th');
 
@@ -235,6 +262,15 @@ function renderRankingHeader(season, league, theadId) {
     const main = document.createElement('span');
     main.className = 'league-score';
     main.textContent = point.leaguePoint;
+
+    // ★ 最大ならリーグ別クラスを付与
+    if (point.leaguePoint === maxLeaguePoint) {
+      if (league === 'central') {
+        main.classList.add('score-strong-central');
+      } else if (league === 'pacific') {
+        main.classList.add('score-strong-pacific');
+      }
+    }
 
     // 内訳（上付き）
     const sup = document.createElement('sup');
@@ -245,7 +281,7 @@ function renderRankingHeader(season, league, theadId) {
     th.appendChild(sup);
     scoreRow.appendChild(th);
   });
-
+  
   thead.appendChild(nameRow);
   thead.appendChild(scoreRow);
 }
@@ -261,10 +297,32 @@ function renderTable(season, league, tbodyId) {
 
     // 1列目：現在順位（実績）
     const currentTd = document.createElement('td');
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'current-rank';
+
     const currentImg = document.createElement('img');
     currentImg.src = `logos/${league}/${resultRanks[rank]}.png`;
     currentImg.className = 'logo';
-    currentTd.appendChild(currentImg);
+
+    wrapper.appendChild(currentImg);
+
+    // ゲーム差表示（2位以下のみ）
+    const gbList =
+      league === 'central'
+        ? results[season].centralGb
+        : results[season].pacificGb;
+
+    const gb = gbList?.[rank];
+
+    if (rank > 0 && gb && gb !== '-') {
+      const gbLabel = document.createElement('span');
+      gbLabel.className = 'gb-label';
+      gbLabel.textContent = `↑${gb}`;
+      wrapper.appendChild(gbLabel);
+    }
+
+    currentTd.appendChild(wrapper);
     tr.appendChild(currentTd);
 
     // 2列目以降：各ユーザーの予想

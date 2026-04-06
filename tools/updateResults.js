@@ -51,6 +51,8 @@ const resultsPath = path.join(__dirname, '..', 'data', 'results.json');
 
 // ---------------- メイン処理 ----------------
 async function updateResults() {
+  const GB_COL_INDEX = 6; // ← ゲーム差の列番号（※要確認）
+
   /* ===== セ・リーグ取得 ===== */
   console.log('🌐 fetching Central League page...');
   const centralHtml = await fetchPage(
@@ -58,13 +60,25 @@ async function updateResults() {
   );
   const $c = cheerio.load(centralHtml);
 
-
   const centralJp = [];
+  const centralGb = [];
+
   $c('tbody.bis-table-body tr.ststats').each((i, el) => {
-    centralJp.push($c(el).find('td').first().text().trim());
+    const tds = $c(el).find('td');
+
+    // チーム名
+    const teamName = tds.eq(0).text().trim();
+    centralJp.push(teamName);
+
+    // ゲーム差（1位は "-"）
+    const gbText = tds.eq(GB_COL_INDEX).text().trim();
+    centralGb.push(gbText || '-');
   });
+
   const central = toTeamKeyArray(centralJp);
+
   console.log('✅ Central league order (keys):', central);
+  console.log('✅ Central league games behind:', centralGb);
 
   /* ===== パ・リーグ取得 ===== */
   console.log('🌐 fetching Pacific League page...');
@@ -74,11 +88,22 @@ async function updateResults() {
   const $p = cheerio.load(pacificHtml);
 
   const pacificJp = [];
+  const pacificGb = [];
+
   $p('tbody.bis-table-body tr.ststats').each((i, el) => {
-    pacificJp.push($p(el).find('td').first().text().trim());
+    const tds = $p(el).find('td');
+
+    const teamName = tds.eq(0).text().trim();
+    pacificJp.push(teamName);
+
+    const gbText = tds.eq(GB_COL_INDEX).text().trim();
+    pacificGb.push(gbText || '-');
   });
+
   const pacific = toTeamKeyArray(pacificJp);
+
   console.log('✅ Pacific league order (keys):', pacific);
+  console.log('✅ Pacific league games behind:', pacificGb);
 
   /* ===== results.json 更新 ===== */
   console.log('📖 reading results.json...');
@@ -86,13 +111,24 @@ async function updateResults() {
   const data = JSON.parse(raw);
 
   data[season] = {
-    updatedAt: new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' }),
+    updatedAt: new Date().toLocaleString('ja-JP', {
+      timeZone: 'Asia/Tokyo'
+    }),
     central,
-    pacific
+    centralGb,
+    pacific,
+    pacificGb
   };
 
-  fs.writeFileSync(resultsPath, JSON.stringify(data, null, 2), 'utf-8');
-  console.log('✅ results.json updated successfully!');
+  fs.writeFileSync(
+    resultsPath,
+    JSON.stringify(data, null, 2),
+    'utf-8'
+  );
+
+  console.log(
+    `✅ results.json updated (${season}): standings + games behind`
+  );
 }
 
 // 実行
