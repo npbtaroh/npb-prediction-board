@@ -1,14 +1,20 @@
 // ★ 非同期で中身が入るので let
 let users = [];
 let season = '2026';
+let allUsers = null;   // users.json（不変マスタ）
+let allSeasons = null;// seasons.json（年度設定）
 let predictions = {};
 let results = {};
 let allResults = {};
 let allPredictions = {};
-let availableSeasons = [];
 let scores = {};
 
 // 1. データロード系
+async function loadSeasons() {
+  const res = await fetch('data/seasons.json');
+  return await res.json();
+}
+
 async function loadUsers() {
   const res = await fetch('data/users.json');
   return await res.json();
@@ -24,7 +30,24 @@ async function loadResults() {
   return await res.json();
 }
 
-// 2. 計算ロジック
+// 2. データ整形
+function buildUsersForSeason(allUsers, seasons, season) {
+  const seasonData = seasons[season];
+  if (!seasonData) return [];
+
+  const { participants, order } = seasonData;
+
+  // 表示順を優先、なければ participants 順
+  const ids = order && order.length ? order : participants;
+
+  return ids.map(id => ({
+    id,
+    name: allUsers[id]?.name ?? id
+  }));
+}
+
+
+// 3. 計算ロジック
 function calculateBonusPoints(predictedRanks, actualRanks) {
   let bonus = 0;
 
@@ -130,7 +153,7 @@ function calcTotalScore(scoreObj) {
   ); // 未計算のものは0として扱いエラーが出ず描画を継続できる
 }
 
-// 3. 描画系
+// 4. 描画系
 function renderTotalScoreTable() {
   const thead = document.getElementById('total-score');
   thead.innerHTML = '';
@@ -321,6 +344,7 @@ function applyBonusUI(season, league, tbodyId) {
   });
 }
 
+// 5. UI補助
 function updateTitleBySeason(season) {
   const seasonText = document.getElementById('season-text');
   if (!seasonText) return;
@@ -372,9 +396,9 @@ function updateUpdatedAt(season) {
     : '最終更新：--';
 }
 
-// 4. シーズンUI
-function buildSeasonMenu(allPredictions) {
-  availableSeasons = Object.keys(allPredictions).sort().reverse();
+// 6. シーズンUI
+function buildSeasonMenu(allSeasons) {
+  const availableSeasons = Object.keys(allSeasons).sort().reverse();
 
   const menu = document.getElementById('season-menu');
   menu.innerHTML = '';
@@ -392,18 +416,20 @@ async function switchSeason(newSeason) {
 
   // タイトル更新
   updateTitleBySeason(season);
-  updateUpdatedAt(season);
   document.getElementById('season-menu').classList.add('hidden');
 
-  // 年度データ差し替え
   predictions[season] = allPredictions[season];
   results[season]     = allResults[season];
+
+  // 年度データ差し替え
+  users = buildUsersForSeason(allUsers, allSeasons, season);  
 
   scores[season] = {};
   recalcScores(season);
 
   // 再描画
   renderSeason(season);
+  updateUpdatedAt(season);
 }
 
 function setupSeasonToggle() {
@@ -428,35 +454,39 @@ function setupSeasonToggle() {
   });
 }
 
-// 5. init
-async function init() {
+// 7. init
+async function init() {  
+  // マスタロード（1回だけ）
+  allUsers   = (await loadUsers()).users;
+  allSeasons = await loadSeasons();
+
   // タイトル更新
   updateTitleBySeason(season);
-  updateUpdatedAt(season);
-
-  users = (await loadUsers())
-    .filter(u => u.active)
-    .sort((a, b) => a.order - b.order);
 
   // データ取得
   allPredictions = await loadPredictions();
   allResults     = await loadResults();
 
-  // 初期年度セット
+  // 年度状態セット
   predictions[season] = allPredictions[season];
   results[season]     = allResults[season];
 
-  // 年度メニュー構築
-  buildSeasonMenu(allPredictions);
+ // 表示ユーザー構築
+  users = buildUsersForSeason(allUsers, allSeasons, season);
 
+  // 年度メニュー構築（★ここだけ）
+  buildSeasonMenu(allSeasons);
+
+  // スコア計算  
   scores[season] = {};
   recalcScores(season);
 
   // 描画
   renderSeason(season);
 
-  // UIイベント
+  // UI初期化
   setupSeasonToggle();
+  updateUpdatedAt(season);
 }
 
 init()
