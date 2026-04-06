@@ -483,10 +483,10 @@ async function init() {
 
   // 描画
   renderSeason(season);
+  updateUpdatedAt(season);
 
   // UI初期化
   setupSeasonToggle();
-  updateUpdatedAt(season);
 }
 
 init()
