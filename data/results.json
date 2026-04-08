@@ -19,38 +19,38 @@
     ]
   },
   "2026": {
-    "updatedAt": "2026/4/8 4:40:30",
+    "updatedAt": "2026/4/9 4:49:24",
     "central": [
       "swallows",
       "tigers",
-      "carp",
       "giants",
+      "carp",
       "baystars",
       "dragons"
     ],
     "centralGb": [
       "--",
-      "0.5",
-      "2.0",
+      "1.5",
       "2.5",
-      "4.5",
+      "3.0",
+      "5.5",
       "5.5"
     ],
     "pacific": [
       "hawks",
-      "eagles",
       "fighters",
       "buffaloes",
-      "marines",
-      "lions"
+      "eagles",
+      "lions",
+      "marines"
     ],
     "pacificGb": [
       "--",
+      "1.0",
+      "1.0",
       "1.5",
-      "2.0",
-      "2.0",
-      "3.0",
-      "3.5"
+      "2.5",
+      "3.0"
     ]
   }
 }
