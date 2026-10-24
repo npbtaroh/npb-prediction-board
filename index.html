@@ -14,12 +14,9 @@
     <div class="header-bar">
       <h1 id="app-title" class="season-selector">
         <span id="title-text">NPB順位予想</span>
-        <span id="season-text">2026</span>
-        <span class="caret">▾</span>
-
-        <ul id="season-menu" class="season-menu hidden">
-          <!-- JSで年度生成 -->
-        </ul>
+        <button id="season-prev" class="season-nav" type="button">‹</button>
+        <span id="season-text"></span>
+        <button id="season-next" class="season-nav" type="button">›</button>
       </h1>
 
       <div id="updated-at" class="updated-at">
@@ -27,18 +24,16 @@
       </div>
     </div>
 
-      <ul id="season-menu" class="season-menu hidden">
-        <!-- JSで年度を生成 -->
-      </ul>
-    </h1>
-
     <!-- 合計点 -->
-    <table class="total-score-table">
+    <div class="board-scroll board-scroll-top">
+    <div class="board-content">
+    <table class="total-score-table board-table">
       <thead id="total-score">
         <!-- JSで描画 -->
       </thead>
     </table>
-
+    </div>
+    </div>
     <!-- タブ -->
     <!-- 
     <div class="tabs">
@@ -51,8 +46,15 @@
     </div>
     -->
 
+    <div class="ranking-section-guide">
+    <div>実際の順位</div>
+    <div>順位予想</div>
+    </div>
+
     <!-- セ・リーグ -->
-    <table>
+    <div class="board-scroll board-scroll-bottom">
+    <div class="board-content">
+    <table class="board-table">
       <thead id="central-head">
         <!-- JSで描画 -->
       </thead>
@@ -60,13 +62,16 @@
     </table>
 
     <!-- パ・リーグ -->
-    <table>
+    <table class="board-table">
       <thead id="pacific-head">
         <!-- JSで描画 -->
       </thead>
       <tbody id="pacific-body"></tbody>
     </table>
+    </div>
+    </div>
     <div class="screen-spacer"></div>
+    </div>
   </div>
 
   <!-- JS -->

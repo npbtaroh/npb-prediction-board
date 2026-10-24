@@ -46,8 +46,31 @@ function fetchPage(url) {
 }
 
 // ---------- 設定 ----------
-const season = '2026';
 const resultsPath = path.join(__dirname, '..', 'data', 'results.json');
+const seasonsPath = path.join(__dirname, '..', 'data', 'seasons.json');
+
+const seasonsData = JSON.parse(
+  fs.readFileSync(seasonsPath, 'utf-8')
+);
+
+const activeSeasons = Object.keys(seasonsData)
+  .filter(year => seasonsData[year].status === 'active')
+  .sort((a, b) => Number(b) - Number(a));
+
+if (activeSeasons.length === 0) {
+  console.log('ℹ️ 更新対象のactiveシーズンはありません');
+  process.exit(0);
+}
+
+if (activeSeasons.length > 1) {
+  throw new Error(
+    `activeシーズンが複数あります: ${activeSeasons.join(', ')}`
+  );
+}
+
+const season = activeSeasons[0];
+
+console.log(`📅 active season: ${season}`);
 
 // ---------------- メイン処理 ----------------
 async function updateResults() {
@@ -56,7 +79,7 @@ async function updateResults() {
   /* ===== セ・リーグ取得 ===== */
   console.log('🌐 fetching Central League page...');
   const centralHtml = await fetchPage(
-    'https://npb.jp/bis/2026/stats/std_c.html'
+    `https://npb.jp/bis/${season}/stats/std_c.html`
   );
   const $c = cheerio.load(centralHtml);
 
@@ -83,7 +106,7 @@ async function updateResults() {
   /* ===== パ・リーグ取得 ===== */
   console.log('🌐 fetching Pacific League page...');
   const pacificHtml = await fetchPage(
-    'https://npb.jp/bis/2026/stats/std_p.html'
+    `https://npb.jp/bis/${season}/stats/std_p.html`
   );
   const $p = cheerio.load(pacificHtml);
 
@@ -111,6 +134,8 @@ async function updateResults() {
   const data = JSON.parse(raw);
 
   data[season] = {
+    ...(data[season] || {}),
+    
     updatedAt: new Date().toLocaleString('ja-JP', {
       timeZone: 'Asia/Tokyo'
     }),

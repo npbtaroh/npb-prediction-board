@@ -1,6 +1,6 @@
 // ★ 非同期で中身が入るので let
 let users = [];
-let season = '2026';
+let season;
 let allUsers = null;   // users.json（不変マスタ）
 let allSeasons = null;// seasons.json（年度設定）
 let predictions = {};
@@ -123,6 +123,28 @@ function getBonusType(predictedRanks, actualRanks, teamKey) {
   return null;
 }
 
+function calculateNipponSeriesBonus(season, userId) {
+  const predicted = predictions[season]?.nipponSeries;
+  const actual = results[season]?.nipponSeries;
+
+  // CS予想がない年度は0点
+  if (!predicted || !actual) {
+    return 0;
+  }
+
+  let bonus = 0;
+
+  if (predicted.central?.[userId] === actual.central) {
+    bonus += 5;
+  }
+
+  if (predicted.pacific?.[userId] === actual.pacific) {
+    bonus += 5;
+  }
+
+  return bonus;
+}
+
 function recalcScores(season) { // アプリの状態（scores）を最新状態に更新する処理
   scores[season] = {};
 
@@ -137,9 +159,16 @@ function recalcScores(season) { // アプリの状態（scores）を最新状態
       results[season].pacific
     );
 
+    // ★ 日本シリーズ進出チーム予想ボーナス
+    const nipponSeriesBonus = calculateNipponSeriesBonus(
+      season,
+      user.id
+    );
+
     scores[season][user.id] = {
       central,
-      pacific
+      pacific,
+      nipponSeriesBonus
     };
   });
 }
@@ -149,7 +178,8 @@ function calcTotalScore(scoreObj) {
 
   return (
     (scoreObj.central?.leaguePoint ?? 0) +
-    (scoreObj.pacific?.leaguePoint ?? 0)
+    (scoreObj.pacific?.leaguePoint ?? 0) +
+    (scoreObj.nipponSeriesBonus ?? 0)
   ); // 未計算のものは0として扱いエラーが出ず描画を継続できる
 }
 
@@ -160,10 +190,13 @@ function renderTotalScoreTable() {
 
   // 1行目：名前
   const nameRow = document.createElement('tr');
-  nameRow.appendChild(document.createElement('th'));
+  const nameCorner = document.createElement('th');
+  nameCorner.className = 'actual-column';
+  nameRow.appendChild(nameCorner);
 
   users.forEach(u => {
     const th = document.createElement('th');
+    th.className = 'user-column';
     th.textContent = u.name;
     nameRow.appendChild(th);
   });
@@ -172,6 +205,7 @@ function renderTotalScoreTable() {
   const scoreRow = document.createElement('tr');
   const label = document.createElement('th');
   label.textContent = '合計';
+  label.className = 'actual-column';
   scoreRow.appendChild(label);
 
   // 合計点を先に配列で取得
@@ -185,6 +219,8 @@ function renderTotalScoreTable() {
   // 描画
   users.forEach((u, index) => {
     const th = document.createElement('th');
+    th.className = 'user-column';
+
     const total = totals[index];
 
     const main = document.createElement('span');
@@ -199,91 +235,181 @@ function renderTotalScoreTable() {
     scoreRow.appendChild(th);
   });
 
+// 3行目：CS予想
+const csRow = document.createElement('tr');
+
+const actual = results[season]?.nipponSeries;
+
+// 左端セル
+const csInfoTh = document.createElement('th');
+csInfoTh.className = 'cs-info-cell actual-column';
+
+// 左側：「CS予想」
+const csTitle = document.createElement('div');
+csTitle.className = 'cs-row-label';
+csTitle.innerHTML = 'CS<br>予想';
+
+csInfoTh.appendChild(csTitle);
+
+// 右側：「日本S進出」＋結果ロゴ
+const resultArea = document.createElement('div');
+resultArea.className = 'cs-result-area';
+
+if (actual) {
+  const resultLabel = document.createElement('div');
+  resultLabel.className = 'cs-result-label';
+  resultLabel.textContent = '日本S進出';
+
+  const logos = document.createElement('div');
+  logos.className = 'cs-result-logos';
+
+  logos.appendChild(
+    createCsLogo('central', actual.central, false)
+  );
+
+  logos.appendChild(
+    createCsLogo('pacific', actual.pacific, false)
+  );
+
+  resultArea.appendChild(resultLabel);
+  resultArea.appendChild(logos);
+} else {
+  resultArea.textContent = '-';
+}
+
+csInfoTh.appendChild(resultArea);
+csRow.appendChild(csInfoTh);
+
+// 各ユーザー：CS予想
+users.forEach(user => {
+  const th = document.createElement('th');
+  th.className = 'cs-cell user-column';
+
+  const predicted = predictions[season]?.nipponSeries;
+
+  if (predicted && actual) {
+    th.appendChild(
+      createCsLogo(
+        'central',
+        predicted.central?.[user.id],
+        predicted.central?.[user.id] === actual.central
+      )
+    );
+
+    th.appendChild(
+      createCsLogo(
+        'pacific',
+        predicted.pacific?.[user.id],
+        predicted.pacific?.[user.id] === actual.pacific
+      )
+    );
+  } else {
+    th.textContent = '-';
+  }
+
+  csRow.appendChild(th);
+});
+
   thead.appendChild(nameRow);
   thead.appendChild(scoreRow);
+  thead.appendChild(csRow);
+}
+
+function createCsLogo(league, team, hit) {
+  const wrapper = document.createElement('span');
+  wrapper.className = 'cs-logo-wrapper';
+
+  const img = document.createElement('img');
+  img.src = `logos/${league}/${team}.png`;
+  img.alt = team;
+  img.className = 'cs-logo';
+
+  wrapper.appendChild(img);
+
+  // CS予想的中
+  if (hit) {
+    wrapper.classList.add('cs-hit');
+
+    const bonusLabel = document.createElement('span');
+    bonusLabel.className = 'cs-bonus-label';
+    bonusLabel.textContent = '+5';
+
+    wrapper.appendChild(bonusLabel);
+  }
+
+  return wrapper;
 }
 
 function renderRankingHeader(season, league, theadId) {
   const thead = document.getElementById(theadId);
   thead.innerHTML = '';
 
-  // 1行目：リーグ＋ユーザー名
-  const nameRow = document.createElement('tr');
+  // リーグ見出し＋各ユーザーのリーグ得点
+  const leagueRow = document.createElement('tr');
+  leagueRow.className = 'league-score-row';
 
-    // 左端：リーグセル（画像付き）
+  // 左端：リーグ名
   const leagueTh = document.createElement('th');
-  leagueTh.className = 'league-cell';
+  leagueTh.className = 'league-cell actual-column';
 
   const leagueImg = document.createElement('img');
   leagueImg.src =
     league === 'central'
       ? 'logos/league/central.gif'
       : 'logos/league/pacific.gif';
-  leagueImg.alt = league === 'central' ? 'セ・リーグ' : 'パ・リーグ';
+
+  leagueImg.alt =
+    league === 'central'
+      ? 'セ・リーグ'
+      : 'パ・リーグ';
+
   leagueImg.className = 'league-icon';
 
   const leagueText = document.createElement('span');
   leagueText.textContent =
-    league === 'central' ? 'セ・リーグ' : 'パ・リーグ';
+    league === 'central'
+      ? 'セ・リーグ'
+      : 'パ・リーグ';
 
   leagueTh.appendChild(leagueImg);
   leagueTh.appendChild(leagueText);
-  nameRow.appendChild(leagueTh);
+  leagueRow.appendChild(leagueTh);
 
-  //   // ユーザー名
-  // users.forEach(user => {
-  //   const th = document.createElement('th');
-  //   th.textContent = user.name;
-  //   nameRow.appendChild(th);
-  // });
-
-  // 2行目：現在順位+リーグ別スコア（リーグポイント内訳つき）
-  const scoreRow = document.createElement('tr');
-
-  const label = document.createElement('th');
-  label.textContent = '現在順位';
-  label.className = 'row-label';
-  scoreRow.appendChild(label);
-
-  // ★ このリーグの合計ポイント一覧
+  // このリーグのユーザー別得点
   const leagueTotals = users.map(user =>
     scores[season][user.id][league].leaguePoint
   );
 
-  // ★ 最大値
   const maxLeaguePoint = Math.max(...leagueTotals);
 
-  // ★ 描画
-  users.forEach((user) => {
+  users.forEach(user => {
     const point = scores[season][user.id][league];
     const th = document.createElement('th');
+    th.className = 'user-column';
 
-    // 合計（大）
     const main = document.createElement('span');
     main.className = 'league-score';
     main.textContent = point.leaguePoint;
 
-    // ★ 最大ならリーグ別クラスを付与
     if (point.leaguePoint === maxLeaguePoint) {
       if (league === 'central') {
         main.classList.add('score-strong-central');
-      } else if (league === 'pacific') {
+      } else {
         main.classList.add('score-strong-pacific');
       }
     }
 
-    // 内訳（上付き）
     const sup = document.createElement('sup');
     sup.className = 'score-breakdown';
-    sup.textContent = `${point.rankPoint}+${point.bonusPoint}`;
+    sup.textContent =
+      `${point.rankPoint}+${point.bonusPoint}`;
 
     th.appendChild(main);
     th.appendChild(sup);
-    scoreRow.appendChild(th);
+    leagueRow.appendChild(th);
   });
-  
-  thead.appendChild(nameRow);
-  thead.appendChild(scoreRow);
+
+  thead.appendChild(leagueRow);
 }
 
 function renderTable(season, league, tbodyId) {
@@ -295,8 +421,9 @@ function renderTable(season, league, tbodyId) {
   for (let rank = 0; rank < 6; rank++) {
     const tr = document.createElement('tr');
 
-    // 1列目：現在順位（実績）
+    // 1列目：実際の順位（実績）
     const currentTd = document.createElement('td');
+    currentTd.className = 'actual-column';
 
     const wrapper = document.createElement('div');
     wrapper.className = 'current-rank';
@@ -329,6 +456,7 @@ function renderTable(season, league, tbodyId) {
     users.forEach(user => {
       const predictedTeam = predictions[season][league][user.id][rank];
       const td = document.createElement('td');
+      td.className = 'user-column';
 
       // team-bonus ラッパー
       const wrapper = document.createElement('div');
@@ -355,12 +483,35 @@ function renderTable(season, league, tbodyId) {
 }
 
 function renderSeason(season) {
+  const boardContents = document.querySelectorAll('.board-content');
+
+  boardContents.forEach(boardContent => {
+    boardContent.style.setProperty(
+      '--user-count',
+      users.length
+    );
+  });
+
   renderTotalScoreTable();
 
   ['central', 'pacific'].forEach(league => {
-    renderRankingHeader(season, league, `${league}-head`);
-    renderTable(season, league, `${league}-body`);
-    applyBonusUI(season, league, `${league}-body`);
+    renderRankingHeader(
+      season,
+      league,
+      `${league}-head`
+    );
+
+    renderTable(
+      season,
+      league,
+      `${league}-body`
+    );
+
+    applyBonusUI(
+      season,
+      league,
+      `${league}-body`
+    );
   });
 }
 
@@ -403,6 +554,40 @@ function applyBonusUI(season, league, tbodyId) {
 }
 
 // 5. UI補助
+function setupBoardScrollSync() {
+  const top = document.querySelector('.board-scroll-top');
+  const bottom = document.querySelector('.board-scroll-bottom');
+
+  if (!top || !bottom) {
+    return;
+  }
+
+  let syncing = false;
+
+  const syncScroll = (source, target) => {
+    if (syncing) return;
+
+    syncing = true;
+    target.scrollLeft = source.scrollLeft;
+
+    requestAnimationFrame(() => {
+      syncing = false;
+    });
+  };
+
+  top.addEventListener(
+    'scroll',
+    () => syncScroll(top, bottom),
+    { passive: true }
+  );
+
+  bottom.addEventListener(
+    'scroll',
+    () => syncScroll(bottom, top),
+    { passive: true }
+  );
+}
+
 function updateTitleBySeason(season) {
   const seasonText = document.getElementById('season-text');
   if (!seasonText) return;
@@ -455,27 +640,12 @@ function updateUpdatedAt(season) {
 }
 
 // 6. シーズンUI
-function buildSeasonMenu(allSeasons) {
-  const availableSeasons = Object.keys(allSeasons).sort().reverse();
-
-  const menu = document.getElementById('season-menu');
-  menu.innerHTML = '';
-
-  availableSeasons.forEach(season => {
-    const li = document.createElement('li');
-    li.textContent = season;
-    li.onclick = () => switchSeason(season);
-    menu.appendChild(li);
-  });
-}
-
 async function switchSeason(newSeason) {
   season = newSeason;
 
   // タイトル更新
   updateTitleBySeason(season);
-  document.getElementById('season-menu').classList.add('hidden');
-
+  
   predictions[season] = allPredictions[season];
   results[season]     = allResults[season];
 
@@ -487,29 +657,65 @@ async function switchSeason(newSeason) {
 
   // 再描画
   renderSeason(season);
+
+  const topScroll = document.querySelector('.board-scroll-top');
+  const bottomScroll = document.querySelector('.board-scroll-bottom');
+
+  if (topScroll) {
+    topScroll.scrollLeft = 0;
+  }
+
+  if (bottomScroll) {
+    bottomScroll.scrollLeft = 0;
+  }
+
   updateUpdatedAt(season);
 }
 
-function setupSeasonToggle() {
-  const title = document.getElementById('app-title');
-  const menu  = document.getElementById('season-menu');
-  if (!title || !menu) return;
+function setupSeasonNavigation() {
+  const prevButton = document.getElementById('season-prev');
+  const nextButton = document.getElementById('season-next');
 
-  // タイトルクリック：開閉
-  title.addEventListener('click', (e) => {
-    e.stopPropagation();
-    menu.classList.toggle('hidden');
+  if (!prevButton || !nextButton) return;
+
+  const getAvailableSeasons = () =>
+    Object.keys(allSeasons)
+      .map(Number)
+      .sort((a, b) => a - b);
+
+  const updateButtons = () => {
+    const seasons = getAvailableSeasons();
+    const currentIndex = seasons.indexOf(Number(season));
+
+    prevButton.disabled = currentIndex <= 0;
+    nextButton.disabled = currentIndex >= seasons.length - 1;
+  };
+
+  prevButton.addEventListener('click', async () => {
+    const seasons = getAvailableSeasons();
+    const currentIndex = seasons.indexOf(Number(season));
+
+    if (currentIndex > 0) {
+      await switchSeason(
+        String(seasons[currentIndex - 1])
+      );
+      updateButtons();
+    }
   });
 
-  // メニュー内クリック：閉じない
-  menu.addEventListener('click', (e) => {
-    e.stopPropagation();
+  nextButton.addEventListener('click', async () => {
+    const seasons = getAvailableSeasons();
+    const currentIndex = seasons.indexOf(Number(season));
+
+    if (currentIndex < seasons.length - 1) {
+      await switchSeason(
+        String(seasons[currentIndex + 1])
+      );
+      updateButtons();
+    }
   });
 
-  // 外クリック：閉じる
-  document.addEventListener('click', () => {
-    menu.classList.add('hidden');
-  });
+  updateButtons();
 }
 
 // 7. init
@@ -517,6 +723,10 @@ async function init() {
   // マスタロード（1回だけ）
   allUsers   = (await loadUsers()).users;
   allSeasons = await loadSeasons();
+
+  // 登録されている最新年度を初期表示
+  season = Object.keys(allSeasons)
+    .sort((a, b) => Number(b) - Number(a))[0];
 
   // タイトル更新
   updateTitleBySeason(season);
@@ -532,9 +742,6 @@ async function init() {
  // 表示ユーザー構築
   users = buildUsersForSeason(allUsers, allSeasons, season);
 
-  // 年度メニュー構築（★ここだけ）
-  buildSeasonMenu(allSeasons);
-
   // スコア計算  
   scores[season] = {};
   recalcScores(season);
@@ -542,9 +749,10 @@ async function init() {
   // 描画
   renderSeason(season);
   updateUpdatedAt(season);
+  setupBoardScrollSync();
 
   // UI初期化
-  setupSeasonToggle();
+  setupSeasonNavigation();
 }
 
 init()

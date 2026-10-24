@@ -22,6 +22,72 @@ body {
     flex-grow: 1;
 }
 
+/* =========================
+   ボード：横スクロール・共通列
+   ========================= */
+
+.board-scroll {
+    --actual-col-width: 120px;
+    --user-col-width: 110px;
+
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+
+    /* スクロールバー非表示 */
+    scrollbar-width: none;
+}
+
+.board-scroll::-webkit-scrollbar {
+    display: none;
+}
+
+/* ボード本体 */
+.board-content {
+    min-width: 100%;
+}
+
+/* すべての表で共通の列幅を使う */
+.board-table {
+    width: 100%;
+    table-layout: fixed;
+}
+
+/* 左端列 */
+.board-table th:first-child,
+.board-table td:first-child {
+    width: var(--actual-col-width);
+    min-width: var(--actual-col-width);
+    max-width: var(--actual-col-width);
+}
+
+/* ユーザー列 */
+.user-column {
+    width: var(--user-col-width);
+    min-width: var(--user-col-width);
+    max-width: var(--user-col-width);
+}
+
+/* セル幅にpadding・borderを含める */
+.board-table th,
+.board-table td {
+    box-sizing: border-box;
+}
+
+.actual-column {
+    position: sticky;
+    left: 0;
+    z-index: 5;
+    background: #fff;
+}
+
+/* ヘッダー側の固定列は手前に表示 */
+thead .actual-column {
+    z-index: 7;
+}
+
 .header-bar {
   display: flex;
   align-items: center;
@@ -43,62 +109,46 @@ h1 {
     margin-bottom: 8px;
 }
 
-/* 年度セレクター */
-.season-selector {
-  text-align: center;
-  font-size: 18px;
-  font-weight: 700;
-  cursor: pointer;
-  user-select: none;
-  position: relative;
-  margin-left: 14px; /* ← ほんの少し左寄せ感 */
+/* =========================
+   年度切替
+   ========================= */
+
+#app-title {
+    display: flex;
+    align-items: center;
+    gap: 2px;
 }
 
-.season-selector:hover {
-  opacity: 0.8;
+#season-prev {
+    margin-left: 4px;
 }
 
-.caret {
-  font-size: 0.8em;
-  margin-left: 4px;
+.season-nav {
+    appearance: none;
+    border: none;
+    background: transparent;
+
+    margin: 0;
+    padding: 2px 5px;
+
+    color: #666;
+    font: inherit;
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1;
+
+    cursor: pointer;
 }
 
-.season-menu {
-  list-style: none;
-  margin: 6px auto 0;
-  padding: 6px 16px;
-  min-width: 140px;
-  max-width: 200px;
-  background: #fff;
-  border-radius: 10px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.18);
-
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translate(-50%, 0);
-
-  opacity: 1;
-  pointer-events: auto;
-
-  z-index: 1000;
-  transition: opacity 0.18s ease, transform 0.18s ease;
+.season-nav:disabled {
+    color: #ccc;
+    cursor: default;
 }
 
-.hidden {
-  opacity: 0;
-  pointer-events: none;
-  transform: translate(-50%, -8px);
-}
-
-.season-menu li {
-  padding: 6px 8px;
-  text-align: center;
-  cursor: pointer;
-}
-
-.season-menu li:hover {
-  background: #f5f5f5;
+#season-text {
+    display: inline-block;
+    min-width: 42px;
+    text-align: center;
 }
 
 /* タブ */
@@ -132,7 +182,7 @@ table {
 }
 
 table + table {
-  margin-top: 16px;
+  margin-top: 4px;
 }
 
 th, td {
@@ -156,28 +206,63 @@ tr:not(:last-child) td {
   font-weight: 600;
 }
 
-.total-score-table thead tr:last-child th {
-    font-size: 18px;
-    font-weight: 700;
+/* 合計とCS予想の間を少し空ける */
+.total-score-table thead tr:nth-child(3) th {
+    padding-top: 16px;
 }
 
-/* 「合計」というラベルだけ少し抑える */
-.total-score-table thead tr:last-child th:first-child {
+/* =========================
+   順位表：共通見出し・リーグ見出し
+   ========================= */
+
+/* 実際の順位 / 順位予想 */
+.ranking-section-guide {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    width: 100%;
+    box-sizing: border-box;
+
+    margin-top: 16px;
+    background: #fff;
+}
+
+.ranking-section-guide > div {
+    text-align: center;
     font-size: 13px;
     font-weight: 600;
-    margin-bottom: 16px;
+    color: #555;
+    padding: 2px 0 1px;
 }
 
+/* リーグ名と得点を同じ行に配置 */
+.league-score-row th {
+    padding-top: 2px;
+    padding-bottom: 4px;
+}
+
+/* パ・リーグ開始位置を区切る */
+/*
+#pacific-head .league-score-row th {
+    border-top: 1px solid #ddd;
+}
+*/
+
 th.league-cell {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
+    display: table-cell;
+    text-align: left;
+    padding-left: 0;
     font-size: 16px;
     font-weight: 700;
     white-space: nowrap;
-    margin: 0;
-    /* border-bottom: 1px solid #ddd; */ /* ←1列目と2列目の罫線をつなぐ場合にONにする */
+}
+
+.league-cell .league-icon {
+    vertical-align: middle;
+    margin-right: 4px;
+}
+
+.league-cell span {
+    vertical-align: middle;
 }
 
 .league-icon {
@@ -238,7 +323,7 @@ th.league-cell {
 }
 
 /* =========================
-   現在順位表現（追加分）
+   実際の順位・ゲーム差表示
    ========================= */
 
 .current-rank {
@@ -339,6 +424,107 @@ th.league-cell {
 .bonus-1 .bonus-label {
     opacity: 0.7;
     color: #555;
+}
+
+/* ---------- CS予想 ---------- */
+.cs-cell {
+    height: 38px;
+    padding: 3px 0;
+    white-space: nowrap;
+}
+
+.cs-logo-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    margin: 0 3px;
+}
+
+.cs-logo {
+    width: 26px;
+    height: 26px;
+    object-fit: contain;
+}
+
+/* CS予想的中：1位的中と同じ赤ホワホワ */
+.cs-hit::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    box-sizing: border-box;
+
+    border: 3px solid rgba(255, 60, 60, 0.9);
+    box-shadow: 0 0 12px rgba(255, 60, 60, 0.7);
+
+    animation: ringPulse 2s infinite;
+}
+
+/* CS予想 +5 */
+.cs-bonus-label {
+    position: absolute;
+    right: -6px;
+    bottom: -6px;
+
+    font-size: 11px;
+    font-weight: 700;
+    z-index: 3;
+    pointer-events: none;
+
+    color: #ffebee;
+    background: rgba(255, 60, 60, 0.9);
+    border-radius: 10px;
+    padding: 1px 5px;
+
+    animation: bonusPulse 2s infinite reverse;
+}
+
+/* CS予想：左端セル全体 */
+.cs-info-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3px 0;
+}
+
+/* 左側：CS予想 */
+.cs-row-label {
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.15;
+    white-space: nowrap;
+
+    padding-right: 5px;
+    margin-right: 4px;
+
+    border-right: 1px solid #ddd;
+}
+
+/* 右側：日シリ進出＋結果 */
+.cs-result-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.cs-result-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: #777;
+    line-height: 1;
+    margin-bottom: 1px;
+    white-space: nowrap;
+}
+
+.cs-result-logos {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
 }
 
 /* ---------- アニメーション ---------- */

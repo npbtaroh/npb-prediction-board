@@ -9,6 +9,14 @@
       "carp",
       "swallows"
     ],
+    "centralGb": [
+      "--",
+      "13.0",
+      "15.0",
+      "23.0",
+      "25.5",
+      "26.5"
+    ],
     "pacific": [
       "hawks",
       "fighters",
@@ -16,17 +24,23 @@
       "eagles",
       "lions",
       "marines"
-    ]
+    ],
+    "pacificGb": [
+      "--",
+      "4.5",
+      "13.5",
+      "21.0",
+      "24.5",
+      "31.5"
+    ],
+    "nipponSeries": {
+      "central": "tigers",
+      "pacific": "hawks"
+    }
   },
   "2026": {
     "updatedAt": "2026/10/21 4:40:53",
     "central": [
-      "tigers",
-      "giants",
-      "baystars",
-      "carp",
-      "swallows",
-      "dragons",
       "tigers",
       "giants",
       "baystars",
@@ -40,21 +54,9 @@
       "7.5",
       "17.0",
       "18.0",
-      "19.0",
-      "3-6",
-      "5-2(2)",
-      "3-6",
-      "3-5(1)",
-      "1-7(1)",
-      "4-5"
+      "19.0"
     ],
     "pacific": [
-      "hawks",
-      "lions",
-      "fighters",
-      "buffaloes",
-      "marines",
-      "eagles",
       "hawks",
       "lions",
       "fighters",
@@ -68,13 +70,11 @@
       "13.0",
       "26.5",
       "28.0",
-      "34.0",
-      "7-2",
-      "7-2",
-      "6-3",
-      "7-2",
-      "5-4",
-      "2-7"
-    ]
+      "34.0"
+    ],
+    "nipponSeries": {
+      "central": "baystars",
+      "pacific": "hawks"
+    }
   }
 }

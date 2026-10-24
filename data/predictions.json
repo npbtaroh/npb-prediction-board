@@ -22,6 +22,18 @@
       "nakamura": ["hawks", "fighters", "lions", "buffaloes", "marines", "eagles"],
       "futo":     ["fighters", "buffaloes", "hawks", "lions", "marines", "eagles"],
       "b":        ["hawks", "buffaloes", "marines", "fighters", "eagles", "lions"]
+    },
+    "nipponSeries": {
+      "central": {
+        "nakamura": "tigers",
+        "futo": "baystars",
+        "b": "baystars"
+      },
+      "pacific": {
+        "nakamura": "hawks",
+        "futo": "fighters",
+        "b": "hawks"
+      }
     }
   }
 }
